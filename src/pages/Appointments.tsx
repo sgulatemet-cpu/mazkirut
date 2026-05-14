@@ -138,10 +138,11 @@ export default function AppointmentsPage({ preselectedContactId, onClearPreselec
     title: a.contacts?.name || 'פגישה',
     start: a.scheduled_at,
     extendedProps: {
-      status: a.status,
-      contactName: a.contacts?.name || '',
+      status:          a.status,
+      contactName:     a.contacts?.name || '',
       appointmentType: a.appointment_type || '',
-      notes: a.notes || '',
+      notes:           a.notes || '',
+      createdBy:       (a as any).created_by || '',
     },
   }));
 
