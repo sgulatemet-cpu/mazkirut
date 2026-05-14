@@ -6,7 +6,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import heLocale from '@fullcalendar/core/locales/he';
 import type { DateClickArg } from '@fullcalendar/interaction';
 import type { EventClickArg } from '@fullcalendar/core';
-import { X, Search, UserPlus, ChevronDown } from 'lucide-react';
+import { X, Search, UserPlus, ChevronDown, Link2, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 // ─── Secretary / system-user definitions ─────────────────────────────────────
@@ -70,6 +70,7 @@ function toLocalInput(iso: string) {
 export default function CalendarView({ appointments, contacts, currentUserId = DEFAULT_USER_ID, onSaved, onEventClick }: Props) {
   const calendarRef = useRef<FullCalendar>(null);
 
+  const [copied, setCopied]   = useState(false);
   const [open, setOpen]       = useState(false);
   const [step, setStep]       = useState<Step>('contact');
   const [saving, setSaving]   = useState(false);
@@ -153,6 +154,13 @@ export default function CalendarView({ appointments, contacts, currentUserId = D
 
   const activeUser = SYSTEM_USERS[currentUserId] ?? SYSTEM_USERS[DEFAULT_USER_ID];
 
+  function handleCopyLink() {
+    navigator.clipboard.writeText(`${window.location.origin}/book`).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   const events = appointments.map(a => {
     const createdBy = a.extendedProps?.createdBy;
     const color = createdBy && SYSTEM_USERS[createdBy]
@@ -185,6 +193,19 @@ export default function CalendarView({ appointments, contacts, currentUserId = D
               <span className="text-xs text-slate-600">{u.name}</span>
             </div>
           ))}
+          <button
+            onClick={handleCopyLink}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+              copied
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200'
+            }`}
+          >
+            {copied
+              ? <><Check className="w-3.5 h-3.5" /> הקישור הועתק!</>
+              : <><Link2 className="w-3.5 h-3.5" /> העתק קישור לזימון</>
+            }
+          </button>
         </div>
       </div>
 
