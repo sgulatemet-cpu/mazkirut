@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar, Clock, User, FileText, MapPin, Link } from 'lucide-react';
+import { X, Calendar, Clock, User, FileText, MapPin, Link, UserPlus } from 'lucide-react';
 import { supabase, Contact, Appointment } from '../lib/supabase';
+import ContactModal from './ContactModal';
 
 interface Props {
   appointment?: Appointment | null;
@@ -44,6 +45,7 @@ export default function AppointmentModal({ appointment, preselectedContactId, on
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [savedAppt, setSavedAppt] = useState<Appointment | null>(null);
+  const [showAddContact, setShowAddContact] = useState(false);
 
   useEffect(() => {
     loadContacts();
@@ -161,9 +163,19 @@ export default function AppointmentModal({ appointment, preselectedContactId, on
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              <User className="w-3.5 h-3.5 inline ml-1 text-slate-400" />איש קשר *
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-sm font-medium text-slate-700">
+                <User className="w-3.5 h-3.5 inline ml-1 text-slate-400" />איש קשר *
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowAddContact(true)}
+                className="flex items-center gap-1 text-xs text-sky-600 hover:text-sky-700 font-medium transition-colors"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                איש קשר חדש
+              </button>
+            </div>
             <select
               value={form.contact_id}
               onChange={e => set('contact_id', e.target.value)}
@@ -287,5 +299,19 @@ export default function AppointmentModal({ appointment, preselectedContactId, on
         </div>
       </div>
     </div>
+
+    {showAddContact && (
+      <ContactModal
+        onClose={() => setShowAddContact(false)}
+        onSaved={async () => {
+          setShowAddContact(false);
+          const { data } = await supabase.from('contacts').select('id, name').order('name');
+          const updated = data || [];
+          setContacts(updated);
+          const newest = updated[updated.length - 1];
+          if (newest) set('contact_id', newest.id);
+        }}
+      />
+    )}
   );
 }
