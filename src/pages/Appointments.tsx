@@ -121,15 +121,6 @@ export default function AppointmentsPage({ preselectedContactId, onClearPreselec
     fetchData();
   }
 
-  function handleCalendarDateClick(dateStr: string) {
-    const dt = new Date(dateStr);
-    setDate(dt.toISOString().split('T')[0]);
-    const h = String(dt.getHours()).padStart(2, '0');
-    const m = String(dt.getMinutes()).padStart(2, '0');
-    setTime(`${h}:${m}`);
-    setViewMode('list');
-  }
-
   function handleCalendarEventClick(id: string) {
     const appt = appointments.find(a => a.id === id);
     if (!appt) return;
@@ -190,7 +181,8 @@ export default function AppointmentsPage({ preselectedContactId, onClearPreselec
       {viewMode === 'calendar' ? (
         <CalendarView
           appointments={calendarEvents}
-          onDateClick={handleCalendarDateClick}
+          contacts={contacts}
+          onSaved={fetchData}
           onEventClick={handleCalendarEventClick}
         />
       ) : (
